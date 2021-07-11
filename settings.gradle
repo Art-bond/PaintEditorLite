@@ -1,0 +1,2 @@
+rootProject.name = "Paint Editor Lite"
+include ':app'
