@@ -7,14 +7,19 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.SparseArray
 import android.view.MotionEvent
+import android.view.MotionEvent.INVALID_POINTER_ID
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.content.res.ResourcesCompat
 import com.example.painteditorlite.Mode.*
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 
 private const val STROKE_WIDTH = 12f
+
 
 class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
@@ -33,7 +38,7 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     private var drawColor = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
 
-    private val paintCurveLine = Paint().apply {
+    private val paint = Paint().apply {
         color = drawColor
         isAntiAlias = true
         isDither = true
@@ -55,28 +60,63 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private val lines: MutableList<LineData> = mutableListOf()
     private var currentLine: LineData? = null
 
-/*    private var actionIndex: Int = 0
-    private var pointerId: Int = 0*/
+    /**
+    Scale parameters
+     **/
+    private var activePointerId = INVALID_POINTER_ID
+    private var mScaleFactor = 1f
+    private val scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            mScaleFactor *= detector.scaleFactor
+            mScaleFactor = max(0.1f, min(mScaleFactor, 10.0f))
+            invalidate()
+
+            return true
+        }
+    }
+    private val mScaleDetector = ScaleGestureDetector(context, scaleListener)
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        // Let the ScaleGestureDetector inspect all events.
+
         motionTouchEventX = event.x
         motionTouchEventY = event.y
 
-
-        if (mode != CURVE) {
+        if (mode == RECT || mode == LINE) {
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> touchStart(event)
-                MotionEvent.ACTION_MOVE -> touchMove(event)
+                MotionEvent.ACTION_DOWN -> touchStart()
+                MotionEvent.ACTION_MOVE -> touchMove()
                 MotionEvent.ACTION_UP -> touchUp()
             }
         }
         if (mode == CURVE) {
+            //add multitouch function
             multiTouchEvent(event)
+        }
+        if (mode == SCALE) {
+            return mScaleDetector.onTouchEvent(event)
+                    || super.onTouchEvent(event)
         }
         return true
     }
 
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+
+        scaleDraw(canvas) //for scaling
+        drawRect(canvas)   //for drawing rectangles
+        drawLines(canvas) //for drawing straight lines
+        //for drawing curves lines
+        canvas?.drawBitmap(extraBitmap, 0f, 0f, null)
+        canvas?.restore()
+
+    }
+
+    /**
+     * Handle multitouch drawing
+     */
     private fun multiTouchEvent(event: MotionEvent) {
 
         val actionIndex = event.actionIndex
@@ -97,18 +137,20 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
                     pointerId = event.getPointerId(index)
                     val pointerPath = paths[pointerId]
                     pointerPath.lineTo(event.getX(index), event.getY(index))
+                    paint.color = drawColor
+                    //add all paths on special canvas
+                    extraCanvas.drawPath(pointerPath, paint)
                 }
                 invalidate()
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                //currentPath.reset()
-                //invalidate()
+                currentPath.reset()
             }
         }
     }
 
 
-    private fun touchStart(event: MotionEvent) {
+    private fun touchStart() {
         when (mode) {
             RECT -> touchStartRect()
             LINE -> touchStartLines()
@@ -116,7 +158,7 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
 
-    private fun touchMove(event: MotionEvent) {
+    private fun touchMove() {
         when (mode) {
             RECT -> touchMoveRect()
             LINE -> touchMoveLines()
@@ -157,7 +199,9 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
 
-
+    /**
+     * Handle single touch drawing with smoothing lines
+     */
     private fun touchMoveCurves() {
         val dx = abs(motionTouchEventX - currentX)
         val dy = abs(motionTouchEventY - currentY)
@@ -173,8 +217,8 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
             currentX = motionTouchEventX
             currentY = motionTouchEventY
             // Draw the path in the extra bitmap to cache it.
-            paintCurveLine.color = drawColor
-            extraCanvas.drawPath(currentPath, paintCurveLine)
+            paint.color = drawColor
+            extraCanvas.drawPath(currentPath, paint)
         }
     }
 
@@ -196,26 +240,20 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-        //canvas?.drawBitmap(extraBitmap, 0f, 0f, null)
-        drawRect(canvas)
-        drawLines(canvas)
-        drawMultiLines(canvas)
-    }
 
-    private fun drawMultiLines(canvas: Canvas?) {
-        for (i in 0 until paths.size()) {
-            paintCurveLine.color = drawColor
-            Log.i("path $i", "path drew ${paths.valueAt(i)} }")
-            canvas?.drawPath(paths.valueAt(i), paintCurveLine)
+    private fun scaleDraw(canvas: Canvas?) {
+        canvas?.apply {
+            save()
+            scaleX = mScaleFactor
+            scaleY = mScaleFactor
         }
     }
+
 
     private fun drawLines(canvas: Canvas?) {
         if (!lines.isNullOrEmpty()) {
             for (line in lines) {
-                val paintLine = paintCurveLine
+                val paintLine = paint
                 paintLine.color = line.color
                 canvas?.drawLine(
                     line.origin.x,
@@ -235,7 +273,7 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
                 val right: Float = rect.origin.x.coerceAtLeast(rect.current.x)
                 val top: Float = rect.origin.y.coerceAtMost(rect.current.y)
                 val bottom: Float = rect.origin.y.coerceAtLeast(rect.current.y)
-                val paintRect = paintCurveLine
+                val paintRect = paint
                 paintRect.color = rect.color
                 canvas?.drawRect(left, top, right, bottom, paintRect)
             }
@@ -254,17 +292,17 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
         mode = LINE
     }
 
+    fun onModeScale() {
+        mode = SCALE
+    }
+
     fun setColor(color: Colors) {
         drawColor = when (color) {
             Colors.RED -> ResourcesCompat.getColor(resources, R.color.colorRed, null)
             Colors.BLUE -> ResourcesCompat.getColor(resources, R.color.colorBlue, null)
             Colors.YELLOW -> ResourcesCompat.getColor(resources, R.color.colorYellow, null)
         }
-
-
         Log.i("color draw", this.drawColor.toString())
 
     }
-
-
 }

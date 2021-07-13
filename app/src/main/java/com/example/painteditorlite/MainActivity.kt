@@ -11,6 +11,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnCurveLine:Button
     private lateinit var btnRectangle: Button
     private lateinit var btnLines:Button
+    private lateinit var btnScale:Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,12 @@ class MainActivity : AppCompatActivity() {
             setOnClickListener {
                 drawView.onModeLines()
 
+            }
+        }
+
+        btnScale = findViewById<Button>(R.id.btn_scale).apply {
+            setOnClickListener {
+                drawView.onModeScale()
             }
         }
 

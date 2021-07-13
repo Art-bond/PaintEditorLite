@@ -14,4 +14,8 @@
     <color name="colorRed">#F44336</color>
     <color name="colorYellow">#FFFFEB3B</color>
     <color name="colorBlue">#2196F3</color>
+    <color name="redButton">#F44336</color>
+    <color name="blueButton">#2196F3</color>
+    <color name="yellowButton">#FFEB3B</color>
+    <color name="yellow_small">#17FFEB3B</color>
 </resources>

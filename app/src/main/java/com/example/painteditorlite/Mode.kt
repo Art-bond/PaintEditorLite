@@ -1,5 +1,5 @@
 package com.example.painteditorlite
 
 enum class Mode {
-    CURVE, RECT, LINE
+    CURVE, RECT, LINE, SCALE
 }
