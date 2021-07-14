@@ -303,6 +303,14 @@ class EditorView(context: Context, attrs: AttributeSet) : View(context, attrs) {
             Colors.YELLOW -> ResourcesCompat.getColor(resources, R.color.colorYellow, null)
         }
         Log.i("color draw", this.drawColor.toString())
+    }
 
+    fun reset(){
+        rectangles.clear()
+        lines.clear()
+        if (::extraBitmap.isInitialized) extraBitmap.recycle()
+        extraBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        extraCanvas = Canvas(extraBitmap)
+        invalidate()
     }
 }

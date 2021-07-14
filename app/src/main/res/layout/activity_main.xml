@@ -20,8 +20,10 @@
         android:background="@color/yellow_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
     </com.example.painteditorlite.EditorView>
 
@@ -29,14 +31,15 @@
         android:id="@+id/btn_curve"
         android:layout_width="@dimen/btn_width"
         android:layout_height="@dimen/btn_height"
-        android:layout_marginStart="@dimen/margin_one"
-        android:layout_marginLeft="@dimen/margin_one"
+        android:layout_marginStart="@dimen/marginHalf"
+
+        android:layout_marginLeft="@dimen/marginHalf"
+        android:layout_marginTop="@dimen/marginHalf"
         app:icon="@drawable/ic_curve_48"
         app:layout_constraintEnd_toStartOf="@+id/btn_rectangle"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/up_line" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btn_rectangle"
@@ -47,8 +50,7 @@
         app:layout_constraintEnd_toStartOf="@+id/btn_line"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btn_curve"
-        app:layout_constraintTop_toTopOf="@+id/btn_curve"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="@+id/btn_curve" />
 
     <Button
         android:id="@+id/btn_line"
@@ -59,30 +61,40 @@
         app:layout_constraintEnd_toStartOf="@+id/btn_scale"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btn_rectangle"
-        app:layout_constraintTop_toTopOf="@+id/btn_rectangle"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="@+id/btn_rectangle" />
 
     <Button
         android:id="@+id/btn_scale"
         android:layout_width="@dimen/btn_width"
         android:layout_height="@dimen/btn_height"
-        android:layout_marginEnd="@dimen/margin_one"
-        android:layout_marginRight="@dimen/margin_one"
         app:icon="@drawable/ic_scale_48"
         app:layout_constraintBottom_toBottomOf="@+id/btn_line"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_return"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/btn_line"
-        app:layout_constraintTop_toTopOf="@+id/btn_line"
+        app:layout_constraintTop_toTopOf="@+id/btn_line" />
+
+    <Button
+        android:id="@+id/btn_return"
+        android:layout_width="@dimen/btn_width"
+        android:layout_height="@dimen/btn_height"
+        app:icon="@drawable/ic_baseline_replay_36"
+        android:layout_marginEnd="@dimen/marginHalf"
+        android:layout_marginRight="@dimen/marginHalf"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_scale"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_scale"
+        app:layout_constraintTop_toTopOf="@+id/btn_scale"
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/btn_red"
-        android:background="?android:selectableItemBackground"
-
         android:layout_width="@dimen/btn_width"
+
         android:layout_height="@dimen/btn_height"
         android:layout_marginBottom="16dp"
+        android:background="?android:selectableItemBackground"
         app:icon="@drawable/ic_circle"
         app:iconTint="@color/redButton"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -92,9 +104,9 @@
 
     <Button
         android:id="@+id/btn_blue"
-        android:background="?android:selectableItemBackground"
         android:layout_width="@dimen/btn_width"
         android:layout_height="@dimen/btn_height"
+        android:background="?android:selectableItemBackground"
         app:icon="@drawable/ic_circle"
         app:iconTint="@color/blueButton"
         app:layout_constraintBottom_toBottomOf="@+id/btn_yellow"
@@ -105,10 +117,10 @@
 
     <Button
         android:id="@+id/btn_yellow"
-        android:background="?android:selectableItemBackground"
-
         android:layout_width="@dimen/btn_width"
+
         android:layout_height="@dimen/btn_height"
+        android:background="?android:selectableItemBackground"
         app:icon="@drawable/ic_circle"
         app:iconTint="@color/yellowButton"
         app:layout_constraintBottom_toBottomOf="@+id/btn_red"

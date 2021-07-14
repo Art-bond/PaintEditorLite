@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnRectangle: Button
     private lateinit var btnLines:Button
     private lateinit var btnScale:Button
+    private lateinit var btnReset:Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +52,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        btnReset = findViewById<Button>(R.id.btn_return).apply {
+            setOnClickListener {
+                drawView.reset()
+            }
+        }
 
 
         btnRed.setOnClickListener {
